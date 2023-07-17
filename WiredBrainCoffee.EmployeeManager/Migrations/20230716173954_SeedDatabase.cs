@@ -13,7 +13,7 @@ namespace WiredBrainCoffee.EmployeeManager.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Finanace" },
+                    { 1, "Finance" },
                     { 2, "Sales" },
                     { 3, "Marketing" },
                     { 4, "Human Resources" },
