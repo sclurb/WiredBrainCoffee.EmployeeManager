@@ -76,6 +76,10 @@ else
             await context.SaveChangesAsync();
             NavigateToOverviewPage();
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            ErrorMessage = "The employee was modified by another user. PLease reload this page";
+        }
         catch(Exception ex)
         {
             ErrorMessage = $"error while saving employee: {ex.Message}";

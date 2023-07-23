@@ -2,6 +2,7 @@
 @inject IDbContextFactory<EmployeeManagerDbContext> ContextFactory
 @inject NavigationManager NavigationManager
 @inject StateContainer StateContainer
+@inject IJSRuntime JS
 
 <PageTitle>Employees</PageTitle>
 
@@ -46,11 +47,14 @@ else
                     <td>@employee.Lastname</td>
                     <td>@employee.IsDeveloper</td>
                     <td>@employee.Department?.Name</td>
-                    <td>
+                    <td class="btn-group-sm">
                         <a href="/employees/edit/@employee.Id"
                         class="btn btn-outline-primary">
                         Edit
                     </a>
+                    <button class="btn btn-outline-danger" @onclick="() => HandleDelete(employee)">
+                        Delete
+                    </button>
                     </td>
                 </tr>
             }
@@ -71,6 +75,12 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+
         if(CurrentPage is null or < 1)
         {
             NavigationManager.NavigateTo("/employees/list/1");
@@ -98,6 +108,26 @@ else
         .Skip(itemsToSkip)
         .Take(ItemsPerPage)
         .ToArrayAsync();
+    }
+
+    private async Task HandleDelete(Employee employee)
+    {
+        var isOk = await JS.InvokeAsync<bool>("confirm", $"Delete Employee {employee.Firstname} {employee.Lastname}?");
+
+        if (isOk)
+        {
+            try
+            {
+                using var context = ContextFactory.CreateDbContext();
+                context.Employee.Remove(employee);
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                
+            }
+            await LoadData();
+        }
     }
 
 }
